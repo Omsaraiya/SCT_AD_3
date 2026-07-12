@@ -12,6 +12,7 @@ class StopwatchScreen extends StatefulWidget {
 class _StopwatchScreenState extends State<StopwatchScreen> {
   final Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
+  List<String> _laps = [];
 
   void _startTimer() {
     _stopwatch.start();
@@ -30,7 +31,16 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
     _stopwatch.stop();
     _stopwatch.reset();
     _timer?.cancel();
+    _laps.clear();
     setState(() {});
+  }
+
+  void addLap() {
+    if (_stopwatch.isRunning) {
+      setState(() {
+        _laps.insert(0, _formattedTime());
+      });
+    }
   }
 
   String _formattedTime() {
@@ -53,61 +63,96 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
         elevation: 0,
         centerTitle: true,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // --- TIME DISPLAY (Neon Circle Design) ---
-            Container(
-              padding: const EdgeInsets.all(40),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.deepPurpleAccent.withOpacity(0.5),
-                  width: 4,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.deepPurpleAccent.withOpacity(0.1),
-                    blurRadius: 50,
-                    spreadRadius: 10,
-                  ),
-                ],
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // --- TIME DISPLAY (Neon Circle Design) ---
+          Container(
+            padding: const EdgeInsets.all(40),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.deepPurpleAccent.withOpacity(0.5),
+                width: 4,
               ),
-              child: Text(
-                _formattedTime(),
-                style: const TextStyle(
-                  fontSize: 54, // Bada aur clear font
-                  fontWeight: FontWeight.w300,
-                  color: Colors.white,
-                  fontFeatures: [FontFeature.tabularFigures()],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 80),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildCircularButton(
-                  label: 'Reset',
-                  icon: Icons.refresh,
-                  color: Colors.white54,
-                  onTap: _resetTimer,
-                ),
-
-                _buildCircularButton(
-                  label: _stopwatch.isRunning ? 'Pause' : 'Start',
-                  icon: _stopwatch.isRunning ? Icons.pause : Icons.play_arrow,
-                  color: _stopwatch.isRunning
-                      ? Colors.orangeAccent
-                      : Colors.greenAccent,
-                  onTap: _stopwatch.isRunning ? _pauseTimer : _startTimer,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.deepPurpleAccent.withOpacity(0.1),
+                  blurRadius: 50,
+                  spreadRadius: 10,
                 ),
               ],
             ),
-          ],
-        ),
+            child: Text(
+              _formattedTime(),
+              style: const TextStyle(
+                fontSize: 54, // Bada aur clear font
+                fontWeight: FontWeight.w300,
+                color: Colors.white,
+                fontFeatures: [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 80),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildCircularButton(
+                label: _stopwatch.isRunning ? 'Lap' : 'Reset',
+                icon: _stopwatch.isRunning ? Icons.flag : Icons.refresh,
+                color: _stopwatch.isRunning
+                    ? Colors.blueAccent
+                    : Colors.white54,
+                onTap: _stopwatch.isRunning ? addLap : _resetTimer,
+              ),
+
+              _buildCircularButton(
+                label: _stopwatch.isRunning ? 'Pause' : 'Start',
+                icon: _stopwatch.isRunning ? Icons.pause : Icons.play_arrow,
+                color: _stopwatch.isRunning
+                    ? Colors.orangeAccent
+                    : Colors.greenAccent,
+                onTap: _stopwatch.isRunning ? _pauseTimer : _startTimer,
+              ),
+            ],
+          ),
+          const SizedBox(height: 30),
+
+          Expanded(
+            child: ListView.builder(
+              itemCount: _laps.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Lap ${_laps.length - index}',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 18,
+                        ),
+                      ),
+                      Text(
+                        _laps[index],
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -128,10 +173,10 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
             width: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: color.withOpacity(0.1), // Halka transparent background
-              border: Border.all(color: color, width: 2), // Solid border
+              color: color.withOpacity(0.1),
+              border: Border.all(color: color, width: 2),
             ),
-            child: Icon(icon, color: color, size: 35), // Bada icon
+            child: Icon(icon, color: color, size: 35),
           ),
         ),
         const SizedBox(height: 12),
