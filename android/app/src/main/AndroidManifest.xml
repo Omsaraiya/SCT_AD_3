@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="sct_ad_3"
+        android:label="Stopwatch Timer"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
